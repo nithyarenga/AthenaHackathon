@@ -133,4 +133,23 @@ def analysiss():
         print doc
     	return json_util.dumps(doc)
 
+@app.route('/analysisvoice')
+def analysis2():
+
+    results = db.alerts.find({"patient_id":"29379"})
+    data = []
+    for doc in results:
+        created = doc["date"]
+        text = doc["text"]
+        json = {"created": created, "content": text}
+        data.append(json)
+
+    for doc in data:
+        print doc
+
+    something = personaility_analysis(data)
+    print something
+
+    return something
+
 run(app, host='158.85.149.138', port=8080, debug=True)
