@@ -5,21 +5,23 @@ from pymongo import MongoClient
 from json import dumps, loads
 from datetime import datetime
 from requests.exceptions import HTTPError
- 
+import time
+from bson import json_util
 import athenahealthapi
 import datetime
 import StringIO
 from script.alchemy_analysis import nl_processing
+import random
 
 client = MongoClient()
 db = client.test
 
 #"ATHENA_TOKEN":"Bearer 2bsm398qq7827s9r85xg8nd5"
 
-#key = 'gt5p97xrp5qzur3wecvzn3py'
-#secret = 'XgptQJgP8jWSdey'
-key = 'rpees3hagjarypdvwdnhjm4f'
-secret = 'BR46MSP5bRreWEA'
+key = 'gt5p97xrp5qzur3wecvzn3py'
+secret = 'XgptQJgP8jWSdey'
+#key = 'rpees3hagjarypdvwdnhjm4f'
+#secret = 'BR46MSP5bRreWEA'
 version = 'preview1'
 practiceid = '195900'
 
@@ -90,109 +92,45 @@ def analysiss():
     value = request.body.read()
     print value
     v = loads(value)
-    result1 = nl_processing(v["text"])
-    print v["text"]
-    db.alerts.insert({"patient_id": v["patient_id"], "text": v["text"], "date" : datetime.datetime.utcnow(), "scores": result1, "risk_value": "Category 3" })
-#    print result1
-    result = {
-     "emotion": {
-       "document": {
-         "emotion": {
-           "anger": 0.103053,
-           "joy": 0.116034,
-           "sadness": 0.099817,
-           "fear": 0.495298,
-           "disgust": 0.187159
-         }
-       }
-     },
-     "sentiment": {
-       "document": {
-         "score": 0.922588,
-         "label": "positive"
-       }
-     },
-     "language": "en",
-     "entities": [
-       {
-         "relevance": 0.931351,
-         "text": "Bruce Banner",
-         "type": "Person",
-         "count": 3
-       },
-       {
-         "relevance": 0.288696,
-         "text": "Wayne",
-         "type": "Person",
-         "count": 1
-       }
-     ],
-     "concepts": [
-       {
-         "relevance": 0.964521,
-         "text": "Jeph Loeb",
-         "dbpedia_resource": "http://dbpedia.org/resource/Jeph_Loeb"
-       },
-       {
-         "relevance": 0.869445,
-         "text": "Stan Lee",
-         "dbpedia_resource": "http://dbpedia.org/resource/Stan_Lee"
-       },
-       {
-         "relevance": 0.846319,
-         "text": "Jack Kirby",
-         "dbpedia_resource": "http://dbpedia.org/resource/Jack_Kirby"
-       },
-       {
-         "relevance": 0.833633,
-         "text": "John Byrne",
-         "dbpedia_resource": "http://dbpedia.org/resource/John_Byrne"
-       },
-       {
-         "relevance": 0.814538,
-         "text": "Marvel Comics",
-         "dbpedia_resource": "http://dbpedia.org/resource/Marvel_Comics"
-       },
-       {
-         "relevance": 0.752684,
-         "text": "Roger Stern",
-         "dbpedia_resource": "http://dbpedia.org/resource/Roger_Stern"
-       },
-       {
-         "relevance": 0.749798,
-         "text": "Rick Jones",
-         "dbpedia_resource": "http://dbpedia.org/resource/Rick_Jones_(comics)"
-       },
-       {
-         "relevance": 0.74342,
-         "text": "Hulk",
-         "dbpedia_resource": "http://dbpedia.org/resource/Hulk_(film)"
-       }
-     ],
-     "keywords": [
-       {
-         "relevance": 0.996186,
-         "text": "Bruce Banner"
-       },
-       {
-         "relevance": 0.963163,
-         "text": "Bruce Wayne"
-       },
-       {
-         "relevance": 0.637163,
-         "text": "Hulk"
-       },
-       {
-         "relevance": 0.612517,
-         "text": "Superman"
-       },
-       {
-         "relevance": 0.5912,
-         "text": "BATMAN"
-       }
-     ]
-    }   
-
-    return result    
+ #   result1 = nl_processing(v["text"])
+    result1 = {
+  "emotion": {
+    "document": {
+      "emotion": {
+        "anger": 0.052645,
+        "joy": 0.349187,
+        "sadness": 0.14315,
+        "fear": 0.258821,
+        "disgust": 0.049918
+      }
+    }
+  },
+  "sentiment": {
+    "document": {
+      "score": 0.0,
+      "label": "neutral"
+    }
+  },
+  "language": "en",
+  "entities": [],
+  "concepts": [],
+  "keywords": [
+    {
+      "relevance": 0.903313,
+      "text": "sun"
+    },
+    {
+      "relevance": 0.871856,
+      "text": "west"
+    }
+  ]
+}
+    number = random.randint(1,5)
+    millis = int(round(time.time() * 1000))
+    db.alerts.insert({"patient_id": v["patient_id"], "text": v["text"], "date" : millis , "scores": result1, "risk": {"name": number,"description":"low Risk"} })
+    something = db.alerts.find({}).sort("date",-1).limit(1)
+    for doc in something:
+        print doc
+    	return json_util.dumps(doc)
 
 run(app, host='158.85.149.138', port=8080, debug=True)
