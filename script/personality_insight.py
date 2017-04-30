@@ -5,6 +5,8 @@ import os
 import personality_insight_conf as conf
 import uuid
 from copy import deepcopy
+import cPickle as pickle
+
 
 std_module = {
    "content": "",
@@ -23,7 +25,7 @@ personality_insights = PersonalityInsightsV3(
 def get_personality(profile_json):
     profile = personality_insights.profile(profile_json, content_type='application/json',
                                             raw_scores=False, consumption_preferences=False)
-    return json.dumps(profile, indent=2)
+    return profile
 
 def create_dataset(timeline_data):
    profile_json = {'contentItems': []}
@@ -32,12 +34,27 @@ def create_dataset(timeline_data):
       ind_block['id'] = str(uuid.uuid1())
       ind_block.update(ind)
       profile_json['contentItems'].append(ind_block)
-   return profile_data
+   return profile_json
 
 
 def personaility_analysis(timeline_data):
+   TEST_MODE = True
    profile_data = create_dataset(timeline_data)
-   return(get_personality(json.dumps(profile_data, ensure_ascii=False)))
+   temp_file = 'test.pickle'
+   if (not os.path.isfile(os.path.join('./', temp_file))) or TEST_MODE:
+      result = get_personality(json.dumps(profile_data, ensure_ascii=True))
+      pickle.dump(result, open(os.path.join('./', temp_file), 'wb'))
+   else:
+      print('Loading Pickle')
+      result = pickle.load(open(os.path.join('./', temp_file)))
+   reqd_tags = ['values', 'needs']
+   reqd_results = {}
+   for key in reqd_tags:
+      reqd_results.setdefault(key, {})
+      for ind_val in result[key]:
+         reqd_results[key][ind_val['name']] = ind_val['percentile']
+   return reqd_results
+
 
 if __name__ == "__main__":
    profile_json = {
@@ -224,7 +241,8 @@ if __name__ == "__main__":
       {'created': 1447602477000, 'content': "Supersoulers let's lift our spirits pray and hold Paris in the Light\ud83d\ude4f\ud83c\udffe"},
       {'created': 1447098990000, 'content': "Watching Bryan Stevenson on #SuperSoulSunday! \"You are not the worst mistake you ever made\".\nAren't we glad  about that."},
    ]
-   profile_data = create_dataset(profile_data)
-   print(profile_json)
+   reqd_tags = ['values', 'needs']
+   personality_info = personaility_analysis(profile_data)
+   print(personality_info)
    raw_input('Check')
    print(get_personality(json.dumps(profile_json, ensure_ascii=False)))
