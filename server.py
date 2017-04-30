@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from json import dumps, loads
 from datetime import datetime
 from requests.exceptions import HTTPError
+<<<<<<< HEAD
  
 import athenahealthapi
 import datetime
