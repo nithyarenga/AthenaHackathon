@@ -5,7 +5,6 @@ from pymongo import MongoClient
 from json import dumps, loads
 from datetime import datetime
 from requests.exceptions import HTTPError
-<<<<<<< HEAD
  
 import athenahealthapi
 import datetime
@@ -91,8 +90,9 @@ def analysiss():
     value = request.body.read()
     print value
     v = loads(value)
-#    result1 = nl_processing(v["text"])
+    result1 = nl_processing(v["text"])
     print v["text"]
+    db.alerts.insert({"patient_id": v["patient_id"], "text": v["text"], "date" : datetime.datetime.utcnow(), "scores": result1, "risk_value": "Category 3" })
 #    print result1
     result = {
      "emotion": {
