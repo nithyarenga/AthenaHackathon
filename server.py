@@ -249,6 +249,10 @@ def analysis2():
     #results = db.alerts.find({"patient_id":v["patient_id"]})
     results = db.alerts.find({"patient_id":"29380"})
 
+@app.route('/analysisvoice')
+def analysis2():
+
+    results = db.alerts.find({"patient_id":"29379"})
     data = []
     for doc in results:
         created = doc["date"]
